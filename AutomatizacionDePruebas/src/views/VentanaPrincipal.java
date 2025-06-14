@@ -1,12 +1,15 @@
+package views;
 
 import algoritmos.*;
-import com.formdev.flatlaf.FlatIntelliJLaf;
-import pruebas.*;
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+
+import pruebas.*;
 import controlador.ControladorSimulacion;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -27,21 +30,35 @@ public class VentanaPrincipal extends JFrame {
     private JCheckBox chkMedias, chkVarianza, chkUniformidad;
     private JRadioButton radio90, radio95, radio99;
     private JTextArea txtResultado;
+    private JTable tablaNumeros;
+    private DefaultTableModel modeloTabla;
 
     public VentanaPrincipal() {
         setTitle("Algoritmos y Pruebas con Números Pseudoaleatorios");
         setSize(700, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
-        Color fondo = UIManager.getColor("Panel.background");
+        // Barra de menú para cambiar tema
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menuTema = new JMenu("Tema");
+
+        JMenuItem claro = new JMenuItem("Claro");
+        claro.addActionListener(a -> setTema("claro"));
+
+        JMenuItem oscuro = new JMenuItem("Oscuro");
+        oscuro.addActionListener(a -> setTema("oscuro"));
+
+        menuTema.add(claro);
+        menuTema.add(oscuro);
+        menuBar.add(menuTema);
+        setJMenuBar(menuBar);
 
         // Combo de algoritmos
         comboAlgoritmo = new JComboBox<>(new String[]{"Cuadrados Medios", "Productos Medios", "Multiplicador Constante"});
         comboAlgoritmo.addActionListener(e -> switchPanel(comboAlgoritmo.getSelectedIndex()));
         JPanel panelTop = new JPanel();
-        panelTop.setBorder(new EmptyBorder(10, 20, 10, 20));
-        panelTop.setBackground(fondo);
         panelTop.add(new JLabel("Algoritmo:"));
         panelTop.add(comboAlgoritmo);
         add(panelTop, BorderLayout.NORTH);
@@ -52,23 +69,24 @@ public class VentanaPrincipal extends JFrame {
         panelCentral.setLayout(cardLayout);
 
         // Panel Cuadrados Medios
-        panelCuadrados = new JPanel(new GridLayout(2, 2, 10, 10));
+        panelCuadrados = new JPanel(new GridLayout(2, 2));
         txtSemillaC = new JTextField();
+        txtSemillaC.setToolTipText("Debe tener exactamente 4 dígitos.");
         txtCantidadC = new JTextField();
-        txtSemillaC.setPreferredSize(new Dimension(100, 24));
-        txtCantidadC.setPreferredSize(new Dimension(100, 24));
-        panelCuadrados.setBorder(BorderFactory.createTitledBorder("Cuadrados Medios"));
+        txtCantidadC.setToolTipText("Cantidad de números a generar.");
         panelCuadrados.add(new JLabel("Semilla (X0):"));
         panelCuadrados.add(txtSemillaC);
         panelCuadrados.add(new JLabel("Cantidad r:"));
         panelCuadrados.add(txtCantidadC);
 
         // Panel Productos Medios
-        panelProductos = new JPanel(new GridLayout(3, 2, 10, 10));
+        panelProductos = new JPanel(new GridLayout(3, 2));
         txtSemillaP1 = new JTextField();
+        txtSemillaP1.setToolTipText("Semilla 1 de 4 dígitos.");
         txtSemillaP2 = new JTextField();
+        txtSemillaP2.setToolTipText("Semilla 2 de 4 dígitos.");
         txtCantidadP = new JTextField();
-        panelProductos.setBorder(BorderFactory.createTitledBorder("Productos Medios"));
+        txtCantidadP.setToolTipText("Cantidad de números a generar.");
         panelProductos.add(new JLabel("Semilla (X0):"));
         panelProductos.add(txtSemillaP1);
         panelProductos.add(new JLabel("Semilla (X1):"));
@@ -77,11 +95,13 @@ public class VentanaPrincipal extends JFrame {
         panelProductos.add(txtCantidadP);
 
         // Panel Multiplicador Constante
-        panelMultiplicador = new JPanel(new GridLayout(3, 2, 10, 10));
+        panelMultiplicador = new JPanel(new GridLayout(3, 2));
         txtSemillaM = new JTextField();
+        txtSemillaM.setToolTipText("Semilla de 4 dígitos.");
         txtConstante = new JTextField();
+        txtConstante.setToolTipText("Constante multiplicativa de 4 dígitos.");
         txtCantidadM = new JTextField();
-        panelMultiplicador.setBorder(BorderFactory.createTitledBorder("Multiplicador Constante"));
+        txtCantidadM.setToolTipText("Cantidad de números a generar.");
         panelMultiplicador.add(new JLabel("Semilla:"));
         panelMultiplicador.add(txtSemillaM);
         panelMultiplicador.add(new JLabel("Constante:"));
@@ -93,34 +113,19 @@ public class VentanaPrincipal extends JFrame {
         panelCentral.add(panelProductos, "productos");
         panelCentral.add(panelMultiplicador, "multiplicador");
 
-        // Panel resultados
-        txtResultado = new JTextArea();
-        txtResultado.setEditable(false);
-        JScrollPane scroll = new JScrollPane(txtResultado);
-
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelCentral, scroll);
-        split.setResizeWeight(0.6);
-        add(split, BorderLayout.CENTER);
+        cardLayout.show(panelCentral, "cuadrados");
 
         // Panel pruebas y confianza
         JPanel panelInferior = new JPanel(new GridLayout(3, 1));
-        panelInferior.setBorder(new EmptyBorder(10, 20, 10, 20));
-        panelInferior.setBackground(fondo);
-
         chkMedias = new JCheckBox("Prueba de medias");
         chkVarianza = new JCheckBox("Prueba de varianza");
         chkUniformidad = new JCheckBox("Prueba de uniformidad");
-
         JPanel panelPruebas = new JPanel();
-        panelPruebas.setBorder(BorderFactory.createTitledBorder("Pruebas a realizar"));
-        panelPruebas.setBackground(fondo);
         panelPruebas.add(chkMedias);
         panelPruebas.add(chkVarianza);
         panelPruebas.add(chkUniformidad);
 
         JPanel panelConfianza = new JPanel();
-        panelConfianza.setBorder(BorderFactory.createTitledBorder("Nivel de confianza"));
-        panelConfianza.setBackground(fondo);
         radio90 = new JRadioButton("90%");
         radio95 = new JRadioButton("95%", true);
         radio99 = new JRadioButton("99%");
@@ -128,6 +133,7 @@ public class VentanaPrincipal extends JFrame {
         grupo.add(radio90);
         grupo.add(radio95);
         grupo.add(radio99);
+        panelConfianza.add(new JLabel("Nivel de confianza:"));
         panelConfianza.add(radio90);
         panelConfianza.add(radio95);
         panelConfianza.add(radio99);
@@ -140,7 +146,23 @@ public class VentanaPrincipal extends JFrame {
         panelInferior.add(btnGenerar);
         add(panelInferior, BorderLayout.SOUTH);
 
-        cardLayout.show(panelCentral, "cuadrados");
+        // Panel resultados en pestañas
+        JTabbedPane pestañas = new JTabbedPane();
+
+        modeloTabla = new DefaultTableModel(new Object[]{"i", "Número"}, 0);
+        tablaNumeros = new JTable(modeloTabla);
+        tablaNumeros.setEnabled(false);
+        JScrollPane scrollTabla = new JScrollPane(tablaNumeros);
+        pestañas.addTab("Números Generados", scrollTabla);
+
+        txtResultado = new JTextArea();
+        txtResultado.setEditable(false);
+        JScrollPane scrollTexto = new JScrollPane(txtResultado);
+        pestañas.addTab("Resultados de Pruebas", scrollTexto);
+
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelCentral, pestañas);
+        split.setResizeWeight(0.5);
+        add(split, BorderLayout.CENTER);
     }
 
     private void switchPanel(int index) {
@@ -162,40 +184,35 @@ public class VentanaPrincipal extends JFrame {
             switch (comboAlgoritmo.getSelectedIndex()) {
                 case 0 -> {
                     int semilla = Integer.parseInt(txtSemillaC.getText());
-                    if (String.valueOf(semilla).length() != 4) {
-                        JOptionPane.showMessageDialog(this, "La semilla debe tener 4 dígitos.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
                     cantidad = Integer.parseInt(txtCantidadC.getText());
                     generador = new CuadradosMedios(semilla);
                 }
                 case 1 -> {
                     int s1 = Integer.parseInt(txtSemillaP1.getText());
                     int s2 = Integer.parseInt(txtSemillaP2.getText());
-                    if (String.valueOf(s1).length() != 4 || String.valueOf(s2).length() != 4) {
-                        JOptionPane.showMessageDialog(this, "Ambas semillas deben tener 4 dígitos.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
                     cantidad = Integer.parseInt(txtCantidadP.getText());
                     generador = new ProductosMedios(s1, s2);
                 }
                 case 2 -> {
                     int semilla = Integer.parseInt(txtSemillaM.getText());
                     int constante = Integer.parseInt(txtConstante.getText());
-                    if (String.valueOf(semilla).length() != 4 || String.valueOf(constante).length() != 4) {
-                        JOptionPane.showMessageDialog(this, "La semilla y la constante deben tener 4 dígitos.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
                     cantidad = Integer.parseInt(txtCantidadM.getText());
                     generador = new MultiplicadorConstante(semilla, constante);
                 }
             }
-
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Por favor ingresa valores válidos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // Obtener y mostrar números
+        modeloTabla.setRowCount(0);
+        List<Double> numeros = generador.generar(cantidad);
+        for (int i = 0; i < numeros.size(); i++) {
+            modeloTabla.addRow(new Object[]{i + 1, numeros.get(i)});
+        }
+
+        // Pruebas seleccionadas
         List<PruebaEstadistica> pruebas = new ArrayList<>();
         if (chkMedias.isSelected()) {
             pruebas.add(new PruebaMedias());
@@ -209,6 +226,7 @@ public class VentanaPrincipal extends JFrame {
 
         double confianza = radio90.isSelected() ? 0.90 : radio95.isSelected() ? 0.95 : 0.99;
 
+        // Ejecutar simulación
         ControladorSimulacion sim = new ControladorSimulacion();
         sim.setGenerador(generador);
         sim.setCantidad(cantidad);
@@ -219,12 +237,26 @@ public class VentanaPrincipal extends JFrame {
         txtResultado.setText(resultado);
     }
 
+      private void setTema(String tema) {
+        try {
+           switch(tema){
+               case "claro" -> UIManager.setLookAndFeel(new FlatIntelliJLaf());
+               case "oscuro"-> UIManager.setLookAndFeel(new FlatDarkLaf() );
+           }
+            SwingUtilities.updateComponentTreeUI(this);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo cambiar el tema.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatIntelliJLaf());
         } catch (Exception e) {
             System.err.println("Failed to initialize LaF");
         }
+
         SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
     }
 }

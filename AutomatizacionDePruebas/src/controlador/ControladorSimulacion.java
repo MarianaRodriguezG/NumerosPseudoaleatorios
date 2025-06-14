@@ -48,14 +48,14 @@ public class ControladorSimulacion {
         List<Double> numeros = generador.generar(cantidad);
         StringBuilder resultado = new StringBuilder();
 
-        resultado.append("Resultados de la simulación\n");
-        resultado.append("Números generados:\n");
+//        resultado.append("Resultados de la simulación\n");
+//        resultado.append("Números generados:\n");
+//
+//        for (int i = 0; i < numeros.size(); i++) {
+//            resultado.append(String.format("%2d: %.4f%n", i + 1, numeros.get(i)));
+//        }
 
-        for (int i = 0; i < numeros.size(); i++) {
-            resultado.append(String.format("%2d: %.4f%n", i + 1, numeros.get(i)));
-        }
-
-        resultado.append("\n🔍 Resultados de pruebas estadísticas:\n");
+        resultado.append("\nResultados de pruebas estadísticas:\n");
 
         for (PruebaEstadistica prueba : pruebas) {
             resultado.append(prueba.ejecutar(numeros, nivelConfianza)).append("\n");
