@@ -3,6 +3,7 @@ import algoritmos.CuadradosMedios;
 import algoritmos.GeneradorNumPseudoaleatorios;
 import algoritmos.MultiplicadorConstante;
 import algoritmos.ProductosMedios;
+import controlador.ControladorSimulacion;
 import java.util.List;
 import java.util.Scanner;
 import pruebas.PruebaEstadistica;
@@ -14,12 +15,12 @@ import pruebas.PruebaVarianza;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 /**
  *
  * @author Mari
  */
 public class MainConsola {
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -82,5 +83,21 @@ public class MainConsola {
         System.out.println(medias.ejecutar(numeros, nivel));
         System.out.println(varianza.ejecutar(numeros, nivel));
         System.out.println(uniformidad.ejecutar(numeros, nivel));
+
+        System.out.println("???????????????????????????");
+        ControladorSimulacion controlador = new ControladorSimulacion();
+        controlador.setGenerador(new CuadradosMedios(9803));
+        controlador.setCantidad(20);
+        controlador.setNivelConfianza(0.95);
+
+        List<PruebaEstadistica> pruebas = List.of(
+                new PruebaMedias(),
+                new PruebaVarianza(),
+                new PruebaUniformidad()
+        );
+        controlador.setPruebas(pruebas);
+
+        System.out.println(controlador.ejecutarSimulacion());
+
     }
 }
